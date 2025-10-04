@@ -4,7 +4,6 @@ const API = axios.create({
   timeout: 5000,
 });
 
-// helper to get next id in front-end if needed (json-server auto increments)
 export default {
   getFiles() {
     return API.get("/files");
