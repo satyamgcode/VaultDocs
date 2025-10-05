@@ -5,7 +5,7 @@
       <div class="w-10 h-10">
         <img src="../assets/icons/logo.svg" alt="Logo" />
       </div>
-      <span class="text-xl font-bold text-gray-800">VaultDocs</span>
+      <a href="/" class="text-xl font-bold text-gray-800">VaultDocs</a>
     </div>
 
     <!-- Desktop Menu -->
