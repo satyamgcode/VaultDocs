@@ -158,16 +158,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import api from './api'
-import FileToolbar from './components/FileToolbar.vue'
-import FileView from './components/FileView.vue'
-import DetailsPane from './components/DetailPane.vue'
-import VersionHistoryModal from './components/VersionHistoryModal.vue'
-import CheckInModal from './components/CheckInModal.vue'
-import UploadModal from './components/UploadModal.vue'
-import DeleteModal from './components/DeleteModal.vue'
-import RenameModal from './components/RenameModal.vue'
-import DownloadModal from './components/DownloadModal.vue'
-import CheckoutModal from './components/CheckoutModal.vue'
+import FileToolbar from '../components/dms/FileToolbar.vue'
+import FileView from '../components/dms/FileView.vue'
+import DetailsPane from '../components/dms/DetailPane.vue'
+import VersionHistoryModal from '../components/dms/VersionHistoryModal.vue'
+import CheckInModal from '../components/dms/CheckInModal.vue'
+import UploadModal from '../components/dms/UploadModal.vue'
+import DeleteModal from '../components/dms/DeleteModal.vue'
+import RenameModal from '../components/dms/RenameModal.vue'
+import DownloadModal from '../components/dms/DownloadModal.vue'
+import CheckoutModal from '../components/dms/CheckoutModal.vue'
 
 
 const files = ref([])

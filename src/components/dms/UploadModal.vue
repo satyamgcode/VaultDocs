@@ -53,7 +53,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import api from '../api'
+import api from '../../api'
 
 const props = defineProps({ parentId: [Number, null] })
 const emit = defineEmits(['close', 'uploaded'])
