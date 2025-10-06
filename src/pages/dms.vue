@@ -1,163 +1,6 @@
-<template>
-  <div class="all-wrapper">
-    <h1 class="title">Document Management System</h1>
-    <div class="inside-wrapper">
-      <FileToolbar
-        :searchModel="search"
-        @search="onSearch"
-        @new-folder="openNewFolder"
-        @upload="openUpload"
-      />
-
-      <div class="breadcrumbs">
-        <span v-for="(b, i) in breadcrumbs" :key="b.id">
-          <span @click="goToCrumb(b)">{{ b.name }}</span>
-          <span v-if="i < breadcrumbs.length - 1"> / </span>
-        </span>
-      </div>
-
-      <div
-        style="display:flex; gap:12px; align-items:center; margin-bottom:8px;"
-      >
-        <label class="small">View:</label>
-        <button class="button" @click="view='list'">List</button>
-        <button class="button" @click="view='grid'">Grid</button>
-
-        <label class="small" style="margin-left:12px">Filter by Type:</label>
-        <select v-model="filters.type" class="input" style="width:140px">
-          <option value="">All</option>
-          <option value="folder">Folders</option>
-          <option value="file">Files</option>
-        </select>
-
-        <!-- <label class="small">Checked Out:</label> -->
-        <!-- <select v-model="filters.checkedOut" class="input" style="width:120px">
-          <option value="">All</option>
-          <option value="true">Checked Out</option>
-          <option value="false">Available</option>
-        </select> -->
-      </div>
-
-      <FileView
-        class="file_view"
-        :files="pagedFiles"
-        :viewMode="view"
-        :sort="sort"
-        @open-folder="openFolder"
-        @select="selectItem"
-        @checkout="checkout"
-        @checkin="checkin"
-        @delete="remove"
-        @rename="rename"
-        @download="download"
-        @sort-change="changeSort"
-      />
-
-      <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
-        <div>Showing {{ filteredFiles.length }} items</div>
-        <div style="flex:1"></div>
-        <div>
-          <button class="button" :disabled="page===1" @click="page--">
-            Prev
-          </button>
-          <span style="margin:0 8px">Page {{ page }}</span>
-          <button
-            class="button"
-            :disabled="page * pageSize >= filteredFiles.length"
-            @click="page++"
-          >
-            Next
-          </button>
-        </div>
-      </div>
-
-      <!-- DetailsPane Modal -->
-      <div v-if="selectedItem">
-        <div class="overlay" @click="selectedItem = null"></div>
-        <div class="modal">
-          <DetailsPane
-            :item="selectedItem"
-            @add-note="addNote"
-            @view-history="openHistory"
-          />
-        </div>
-      </div>
-
-      <!-- History Modal -->
-      <VersionHistoryModal
-        v-if="historyItem"
-        :item="historyItem"
-        @close="historyItem=null"
-        @revert="revertTo"
-      />
-
-      <!-- Check-in Modal -->
-      <div v-if="checkinItem">
-        <div class="overlay" @click="checkinItem=null"></div>
-        <div class="modal">
-          <CheckInModal
-            :item="checkinItem"
-            @close="checkinItem=null"
-            @submit="performCheckIn"
-          />
-        </div>
-      </div>
-
-      <!-- Upload Modal -->
-      <UploadModal
-        v-if="showUpload"
-        :parentId="currentFolderId"
-        @close="showUpload=false"
-        @uploaded="refresh"
-      />
-
-      <DeleteModal
-  v-if="deleteItem"
-  :item="deleteItem"
-  @close="deleteItem=null"
-  @confirm="confirmDelete"
-/>
-
-<RenameModal
-  v-if="renameItem"
-  :item="renameItem"
-  @close="renameItem=null"
-  @confirm="confirmRename"
-/>
-
-<DownloadModal
-  v-if="downloadItem"
-  :item="downloadItem"
-  @close="downloadItem=null"
-  @confirm="confirmDownload"
-/>
-
-<CheckoutModal
-  v-if="checkoutItem"
-  :item="checkoutItem"
-  :defaultUser="checkoutUser"
-  @close="checkoutItem=null"
-  @confirm="confirmCheckout"
-/>
-
-
-      <!-- New Folder Modal -->
-      <div v-if="showNewFolder" class="overlay" @click="showNewFolder=false"></div>
-      <div v-if="showNewFolder" class="modal clickFolderModal">
-        <h3>Create Folder</h3>
-        <input class="input CreateFolder" v-model="newFolderName" placeholder="Folder name" />
-        <div style="margin-top:8px" class="actions">
-          <button class="button" @click="showNewFolder=false">Cancel</button>
-          <button class="button primary" @click="createFolder">Create</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import api from './api'
+import api from '../api.js'
 import FileToolbar from '../components/dms/FileToolbar.vue'
 import FileView from '../components/dms/FileView.vue'
 import DetailsPane from '../components/dms/DetailPane.vue'
@@ -426,6 +269,163 @@ async function createFolder() {
   await refresh()
 }
 </script>
+
+<template>
+  <div class="all-wrapper">
+    <h1 class="title">Document Management System</h1>
+    <div class="inside-wrapper">
+      <FileToolbar
+        :searchModel="search"
+        @search="onSearch"
+        @new-folder="openNewFolder"
+        @upload="openUpload"
+      />
+
+      <div class="breadcrumbs">
+        <span v-for="(b, i) in breadcrumbs" :key="b.id">
+          <span @click="goToCrumb(b)">{{ b.name }}</span>
+          <span v-if="i < breadcrumbs.length - 1"> / </span>
+        </span>
+      </div>
+
+      <div
+        style="display:flex; gap:12px; align-items:center; margin-bottom:8px;"
+      >
+        <label class="small">View:</label>
+        <button class="button" @click="view='list'">List</button>
+        <button class="button" @click="view='grid'">Grid</button>
+
+        <label class="small" style="margin-left:12px">Filter by Type:</label>
+        <select v-model="filters.type" class="input" style="width:140px">
+          <option value="">All</option>
+          <option value="folder">Folders</option>
+          <option value="file">Files</option>
+        </select>
+
+        <!-- <label class="small">Checked Out:</label> -->
+        <!-- <select v-model="filters.checkedOut" class="input" style="width:120px">
+          <option value="">All</option>
+          <option value="true">Checked Out</option>
+          <option value="false">Available</option>
+        </select> -->
+      </div>
+
+      <FileView
+        class="file_view"
+        :files="pagedFiles"
+        :viewMode="view"
+        :sort="sort"
+        @open-folder="openFolder"
+        @select="selectItem"
+        @checkout="checkout"
+        @checkin="checkin"
+        @delete="remove"
+        @rename="rename"
+        @download="download"
+        @sort-change="changeSort"
+      />
+
+      <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+        <div>Showing {{ filteredFiles.length }} items</div>
+        <div style="flex:1"></div>
+        <div>
+          <button class="button" :disabled="page===1" @click="page--">
+            Prev
+          </button>
+          <span style="margin:0 8px">Page {{ page }}</span>
+          <button
+            class="button"
+            :disabled="page * pageSize >= filteredFiles.length"
+            @click="page++"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      <!-- DetailsPane Modal -->
+      <div v-if="selectedItem">
+        <div class="overlay" @click="selectedItem = null"></div>
+        <div class="modal">
+          <DetailsPane
+            :item="selectedItem"
+            @add-note="addNote"
+            @view-history="openHistory"
+          />
+        </div>
+      </div>
+
+      <!-- History Modal -->
+      <VersionHistoryModal
+        v-if="historyItem"
+        :item="historyItem"
+        @close="historyItem=null"
+        @revert="revertTo"
+      />
+
+      <!-- Check-in Modal -->
+      <div v-if="checkinItem">
+        <div class="overlay" @click="checkinItem=null"></div>
+        <div class="modal">
+          <CheckInModal
+            :item="checkinItem"
+            @close="checkinItem=null"
+            @submit="performCheckIn"
+          />
+        </div>
+      </div>
+
+      <!-- Upload Modal -->
+      <UploadModal
+        v-if="showUpload"
+        :parentId="currentFolderId"
+        @close="showUpload=false"
+        @uploaded="refresh"
+      />
+
+      <DeleteModal
+  v-if="deleteItem"
+  :item="deleteItem"
+  @close="deleteItem=null"
+  @confirm="confirmDelete"
+/>
+
+<RenameModal
+  v-if="renameItem"
+  :item="renameItem"
+  @close="renameItem=null"
+  @confirm="confirmRename"
+/>
+
+<DownloadModal
+  v-if="downloadItem"
+  :item="downloadItem"
+  @close="downloadItem=null"
+  @confirm="confirmDownload"
+/>
+
+<CheckoutModal
+  v-if="checkoutItem"
+  :item="checkoutItem"
+  :defaultUser="checkoutUser"
+  @close="checkoutItem=null"
+  @confirm="confirmCheckout"
+/>
+
+
+      <!-- New Folder Modal -->
+      <div v-if="showNewFolder" class="overlay" @click="showNewFolder=false"></div>
+      <div v-if="showNewFolder" class="modal clickFolderModal">
+        <h3>Create Folder</h3>
+        <input class="input CreateFolder" v-model="newFolderName" placeholder="Folder name" />
+        <div style="margin-top:8px" class="actions">
+          <button class="button" @click="showNewFolder=false">Cancel</button>
+          <button class="button primary" @click="createFolder">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
 <style>
 

@@ -4,7 +4,7 @@ import HeroImage from '../assets/images/heroImage.png'
 
 <template>
   <section
-    class="flex flex-col gap-24 md:gap-32 md:flex-row items-center justify-center px-8 md:px-16 bg-green-50 min-h-[87vh]"
+    class="flex flex-col gap-24 md:gap-32 md:flex-row items-center pt-12 justify-center px-8 md:px-16 bg-green-50 min-h-[87vh]"
   >
     <!-- Left Content -->
     <div class="space-y-6 text-center md:text-left">
