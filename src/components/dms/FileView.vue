@@ -1,20 +1,20 @@
 <template>
   <div>
-    <!-- List View -->
-    <div v-if="viewMode==='list'">
-      <table class="table">
-        <thead>
+    <!-- ===== List View ===== -->
+    <div v-if="viewMode === 'list'">
+      <table class="min-w-full border border-green-200 text-sm text-left">
+        <thead class="bg-green-200 text-green-700 uppercase text-xs font-semibold">
           <tr>
-            <th @click="sort('name')" class="sortable">Name</th>
-            <th @click="sort('type')" class="sortable">Type</th>
-            <th @click="sort('fileType')" class="sortable">File Type</th>
-            <th @click="sort('createdBy')" class="sortable">Created By</th>
-            <th>Tags</th>
-            <th @click="sort('checkedOutBy')" class="sortable">Checked Out</th>
-            <th>Actions</th>
+            <th @click="sort('name')" class="px-4 py-3 cursor-pointer hover:bg-green-300">Name</th>
+            <th @click="sort('type')" class="px-4 py-3 cursor-pointer hover:bg-green-300">Type</th>
+            <th @click="sort('fileType')" class="px-4 py-3 cursor-pointer hover:bg-green-300">File Type</th>
+            <th @click="sort('createdBy')" class="px-4 py-3 cursor-pointer hover:bg-green-300">Created By</th>
+            <th class="px-4 py-3">Tags</th>
+            <th @click="sort('checkedOutBy')" class="px-4 py-3 cursor-pointer hover:bg-green-300">Checked Out</th>
+            <th class="px-4 py-3">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="divide-y divide-gray-100">
           <FileItem
             v-for="f in files"
             :key="f.id"
@@ -32,8 +32,11 @@
       </table>
     </div>
 
-    <!-- Grid View -->
-    <div v-else class="grid">
+    <!-- ===== Grid View ===== -->
+    <div
+      v-else
+      class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 mt-3"
+    >
       <FileItem
         v-for="f in files"
         :key="f.id"
@@ -46,6 +49,7 @@
         @delete="$emit('delete', $event)"
         @rename="$emit('rename', $event)"
         @download="$emit('download', $event)"
+        class="bg-white p-5 rounded-xl shadow-md text-center transform transition duration-200 hover:-translate-y-1 hover:shadow-lg"
       />
     </div>
   </div>
@@ -53,69 +57,24 @@
 
 <script setup>
 import FileItem from './FileItem.vue'
-const props = defineProps({ files: { type: Array, default: ()=>[] }, viewMode: String })
-const emit = defineEmits(['open-folder','select','checkout','checkin','delete','rename','download','sort-change'])
-function sort(by) { emit('sort-change', { by }) }
+
+const props = defineProps({
+  files: { type: Array, default: () => [] },
+  viewMode: String
+})
+
+const emit = defineEmits([
+  'open-folder',
+  'select',
+  'checkout',
+  'checkin',
+  'delete',
+  'rename',
+  'download',
+  'sort-change'
+])
+
+function sort(by) {
+  emit('sort-change', { by })
+}
 </script>
-
-<style scoped>
-/* ===== Table Styling ===== */
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.table th, .table td {
-  padding: 12px 14px;
-  text-align: left;
-  border-bottom: 1px solid #eaeaea;
-}
-
-.table th {
-  background: #f9fafb;
-  font-weight: 600;
-  cursor: pointer;
-  user-select: none;
-  transition: background 0.2s;
-}
-
-.table th.sortable:hover {
-  background: #f0f4f8;
-}
-
-.table tbody tr:nth-child(even) {
-  background: #fafafa;
-}
-
-.table tbody tr:hover {
-  background: #f5f9ff;
-}
-
-/* ===== Grid Styling ===== */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
-  margin-top: 12px;
-}
-
-.grid .file-card {
-  background: #fff;
-  padding: 18px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-  text-align: center;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.grid .file-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-</style>

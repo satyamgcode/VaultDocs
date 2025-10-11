@@ -25,27 +25,21 @@
       </div>
     </td>
     <td>
-      <div class="chips">
-        <span class="chip" v-for="t in tagsList" :key="t">{{ t }}</span>
+      <div class="chips flex gap-1">
+        <span class="chip bg-green-100 px-2 py-1 rounded-lg text-xs font-semibold border border-green-600 " v-for="t in tagsList" :key="t">{{ t }}</span>
       </div>
     </td>
     <td>{{ item.checkedOutBy || '-' }}</td>
     <td>
       <div class="actions">
         <!-- <button class="button small" @click="$emit('rename', item)">Rename</button> -->
-        <button class="button small danger" @click="$emit('delete', item)">Delete</button>
-        <button v-if="item.type === 'folder'" class="button small" @click="$emit('open-folder', item)">
-          Open
+        <button class="button small danger" @click="$emit('delete', item)"><img src="../../assets/icons/delete.svg" class="w-4 h-4" /></button>
+        <button v-if="item.type === 'folder'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('open-folder', item)">
+          <img src="../../assets/icons/open.svg" class="w-4 h-4" />
         </button>
-        <button v-if="item.type === 'file'" class="button small" @click="$emit('download', item)">
-          Download
+        <button v-if="item.type === 'file'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('download', item)">
+          <img src="../../assets/icons/download.svg" class="w-4 h-4" />
         </button>
-        <!-- <button v-if="item.type === 'file' && !item.checkedOutBy" class="button small" @click="$emit('checkout', item)">
-          Check Out
-        </button>
-        <button v-if="item.type === 'file' && item.checkedOutBy" class="button small" @click="$emit('checkin', item)">
-          Check In
-        </button> -->
       </div>
 
     </td>
@@ -85,18 +79,12 @@
     <!-- Actions -->
     <div class="file-card-actions">
       <!-- <button class="button small" @click.stop="$emit('rename', item)">Rename</button> -->
-      <button class="button small danger" @click.stop="$emit('delete', item)">Delete</button>
-      <button v-if="item.type === 'folder'" class="button small" @click="$emit('open-folder', item)">
-        Open
+      <button class="button small danger" @click.stop="$emit('delete', item)"><img src="../../assets/icons/delete.svg" class="w-4 h-4" /></button>
+      <button v-if="item.type === 'folder'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('open-folder', item)">
+        <img src="../../assets/icons/open.svg" class="w-4 h-4" />
       </button>
-      <button v-if="item.type === 'file'" class="button small" @click="$emit('download', item)">
-        Download
-      </button>
-      <button v-if="item.type === 'file' && !item.checkedOutBy" class="button small" @click="$emit('checkout', item)">
-        Check Out
-      </button>
-      <button v-if="item.type === 'file' && item.checkedOutBy" class="button small" @click="$emit('checkin', item)">
-        Check In
+      <button v-if="item.type === 'file'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('download', item)">
+        <img src="../../assets/icons/download.svg" class="w-4 h-4" />
       </button>
     </div>
   </div>
@@ -266,23 +254,6 @@ function formatDate(d) {
   color: #444;
   margin-bottom: 12px;
   line-height: 1.5;
-}
-
-/* Chips */
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-}
-
-.chip {
-  background: #eef2ff;
-  color: #3b82f6;
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 12px;
-  font-weight: 500;
 }
 
 /* Actions */

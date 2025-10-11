@@ -1,14 +1,14 @@
 <template>
-  <div class="toolbar">
+  <div class="flex items-center gap-4 py-4 bg-white justify-between">
     <input
-      class="input search-box"
+      class="flex flex-grow border border-green-500 rounded-md px-3 py-2 text-sm font-semibold text-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 max-w-[500px]"
       placeholder="Search by name, tag or email..."
       v-model="q"
       @input="emitSearch"
     />
     <div class="toolbar-actions">
-      <button class="button primary" @click="$emit('new-folder')">+ New Folder</button>
-      <button class="button secondary" @click="$emit('upload')">⬆ Upload</button>
+      <button class="bg-green-500 text-white text-sm font-semibold rounded-md px-4 py-2" @click="$emit('new-folder')">+ New Folder</button>
+      <button class="bg-green-200 text-gray-800 text-sm font-semibold rounded-md px-4 py-2" @click="$emit('upload')">⬆ Upload</button>
     </div>
   </div>
 </template>
@@ -25,30 +25,6 @@ function emitSearch() {
 </script>
 
 <style scoped>
-.toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  margin-bottom: 14px;
-  gap: 12px;
-}
-
-.search-box {
-  flex: 1;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  outline: none;
-  transition: border 0.2s ease;
-}
-.search-box:focus {
-  border-color: #3b82f6;
-}
 
 .toolbar-actions {
   display: flex;
