@@ -31,13 +31,13 @@
     </td>
     <td>{{ item.checkedOutBy || '-' }}</td>
     <td>
-      <div class="actions">
+      <div class="flex gap-1">
         <!-- <button class="button small" @click="$emit('rename', item)">Rename</button> -->
         <button class="button small danger" @click="$emit('delete', item)"><img src="../../assets/icons/delete.svg" class="w-4 h-4" /></button>
-        <button v-if="item.type === 'folder'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('open-folder', item)">
+        <button v-if="item.type === 'folder'" class="px-3 py-1 rounded-lg bg-green-100 hover:bg-green-200" @click="$emit('open-folder', item)">
           <img src="../../assets/icons/open.svg" class="w-4 h-4" />
         </button>
-        <button v-if="item.type === 'file'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('download', item)">
+        <button v-if="item.type === 'file'" class="px-3 py-1 rounded-lg bg-green-100 hover:bg-green-200" @click="$emit('download', item)">
           <img src="../../assets/icons/download.svg" class="w-4 h-4" />
         </button>
       </div>
@@ -80,10 +80,10 @@
     <div class="file-card-actions">
       <!-- <button class="button small" @click.stop="$emit('rename', item)">Rename</button> -->
       <button class="button small danger" @click.stop="$emit('delete', item)"><img src="../../assets/icons/delete.svg" class="w-4 h-4" /></button>
-      <button v-if="item.type === 'folder'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('open-folder', item)">
+      <button v-if="item.type === 'folder'" class="px-3 py-1 rounded-lg bg-green-100 hover:bg-green-200" @click="$emit('open-folder', item)">
         <img src="../../assets/icons/open.svg" class="w-4 h-4" />
       </button>
-      <button v-if="item.type === 'file'" class="px-3 py-1 rounded-lg bg-green-100" @click="$emit('download', item)">
+      <button v-if="item.type === 'file'" class="px-3 py-1 rounded-lg bg-green-100 hover:bg-green-200" @click="$emit('download', item)">
         <img src="../../assets/icons/download.svg" class="w-4 h-4" />
       </button>
     </div>

@@ -1,253 +1,222 @@
 <template>
   <div>
-    <!-- Overlay -->
-    <div class="overlay" @click="$emit('close')"></div>
+    <div
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+      @click="closeModal"
+      aria-hidden="true"
+    ></div>
 
-    <!-- Modal -->
-    <div class="modal" @click.stop>
-      <h3>Upload File</h3>
+    <div
+      class="fixed left-1/2 top-1/2 z-[999] -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl p-6 shadow-xl animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="upload-title"
+      @click.stop
+    >
+      <h3 id="upload-title" class="text-lg font-semibold text-gray-800 mb-4">
+        Upload File
+      </h3>
 
-      <!-- File picker (styled drag & drop) -->
       <div
-        class="file-drop"
+        ref="fileDropRef"
+        tabindex="0"
+        role="button"
+        aria-label="File upload dropzone — press Enter or Space to browse"
         @click="triggerFileInput"
+        @dragenter.prevent="isDragging = true"
         @dragover.prevent="isDragging = true"
         @dragleave.prevent="isDragging = false"
         @drop.prevent="onDrop"
-        :class="{ 'dragging': isDragging }"
+        @keydown.enter.prevent="triggerFileInput"
+        @keydown.space.prevent="triggerFileInput"
+        :class="[
+          'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer mb-4 transition-colors outline-none focus:ring-2',
+          isDragging
+            ? 'border-green-600 bg-green-50 focus:ring-green-200'
+            : 'border-gray-300 hover:border-green-500 focus:ring-green-200',
+        ]"
       >
         <input
           ref="fileInput"
           type="file"
-          class="hidden-input"
+          class="sr-only"
           @change="onFileChange"
+          aria-hidden="true"
         />
-        <div v-if="!file" class="placeholder">
-          <span class="icon">📁</span>
-          <p>Drag & drop file here or <span class="browse">browse</span></p>
+
+        <div v-if="!file" class="text-gray-600 text-sm select-none">
+          <div class="text-3xl mb-2">📁</div>
+          <p>
+            Drag & drop file here or
+            <span class="text-green-600 font-medium"> browse</span>
+          </p>
         </div>
-        <div v-else class="file-info">
-          <span class="icon">✅</span>
-          <p>{{ file.name }}</p>
+
+        <div v-else class="flex flex-col items-center text-gray-800 text-sm">
+          <div class="text-2xl mb-1">✅</div>
+          <p class="truncate max-w-[80%]">{{ file.name }}</p>
+          <button
+            type="button"
+            @click.stop="removeFile"
+            class="mt-2 text-xs text-red-600 hover:underline"
+          >
+            Remove
+          </button>
         </div>
       </div>
 
-      <!-- Optional tags -->
       <input
-        type="text"
-        class="input"
         v-model="tags"
+        type="text"
         placeholder="Tags (comma separated)"
+        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-200 text-sm mb-4"
       />
 
-      <!-- Actions -->
-      <div class="actions">
-        <button class="button primary" @click="upload" :disabled="!file">
-          Upload
+      <div class="flex justify-end gap-3">
+        <button
+          type="button"
+          class="px-4 py-2 rounded-md bg-green-600 text-white text-sm hover:bg-green-700 transition disabled:opacity-50"
+          @click="upload"
+          :disabled="!file || isUploading"
+        >
+          <span v-if="isUploading">Uploading...</span>
+          <span v-else>Upload</span>
         </button>
-        <button class="button secondary" @click="$emit('close')">Cancel</button>
+
+        <button
+          type="button"
+          class="px-4 py-2 rounded-md bg-gray-100 text-gray-700 text-sm hover:bg-gray-200 transition"
+          @click="closeModal"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import api from '../../api'
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import api from "../../api";
 
-const props = defineProps({ parentId: [Number, null] })
-const emit = defineEmits(['close', 'uploaded'])
+// props & emits
+const props = defineProps({
+  parentId: { type: [Number, String], default: null },
+});
+const emit = defineEmits(["close", "uploaded"]);
 
-const file = ref(null)
-const tags = ref('')
-const isDragging = ref(false)
-const fileInput = ref(null)
+// local state
+const file = ref(null);
+const tags = ref("");
+const isDragging = ref(false);
+const isUploading = ref(false);
+const fileInput = ref(null);
+const fileDropRef = ref(null);
 
+// open the native file picker
 function triggerFileInput() {
-  fileInput.value?.click()
+  // reset the input value to allow re-selecting the same file
+  if (fileInput.value) fileInput.value.value = "";
+  fileInput.value?.click();
 }
 
+// handle native input change
 function onFileChange(e) {
-  file.value = e.target.files[0] || null
+  const f = e.target?.files?.[0] ?? null;
+  file.value = f;
 }
 
+// handle drop
 function onDrop(e) {
-  const droppedFile = e.dataTransfer.files[0]
-  if (droppedFile) {
-    file.value = droppedFile
-  }
-  isDragging.value = false
+  const f = e.dataTransfer?.files?.[0] ?? null;
+  if (f) file.value = f;
+  isDragging.value = false;
 }
 
+// remove file selection
+function removeFile() {
+  file.value = null;
+  if (fileInput.value) fileInput.value.value = "";
+}
+
+// create payload and upload
 async function upload() {
   if (!file.value) {
-    alert('Please select a file')
-    return
+    // guard
+    alert("Please select a file");
+    return;
   }
 
-  const fileName = file.value.name
-  const ext = fileName.includes('.') ? fileName.split('.').pop() : ''
+  isUploading.value = true;
+  try {
+    const fileName = file.value.name;
+    const ext = fileName.includes(".") ? fileName.split(".").pop() : "";
 
-  const payload = {
-    name: fileName,
-    type: 'file',
-    fileType: ext,
-    parentId: props.parentId === undefined ? null : props.parentId,
-    checkedOutBy: null,
-    createdBy: 'me@example.com',
-    createdAt: new Date().toISOString(),
-    metadata: { tags: tags.value },
-    versions: [
-      {
-        note: 'Initial upload',
-        note_at: new Date().toISOString(),
-        note_id: 1,
-        uploadedBy: 'me@example.com',
-        versionId: 1
-      }
-    ]
+    const payload = {
+      name: fileName,
+      type: "file",
+      fileType: ext,
+      parentId: props.parentId ?? null,
+      checkedOutBy: null,
+      createdBy: "me@example.com",
+      createdAt: new Date().toISOString(),
+      metadata: { tags: tags.value },
+      versions: [
+        {
+          note: "Initial upload",
+          note_at: new Date().toISOString(),
+          note_id: 1,
+          uploadedBy: "me@example.com",
+          versionId: 1,
+        },
+      ],
+    };
+
+    await api.createFile(payload);
+    emit("uploaded");
+    closeModal();
+  } catch (err) {
+    // basic error handling — surface a friendly message
+    console.error("Upload error", err);
+    alert("Upload failed. Check console for details.");
+  } finally {
+    isUploading.value = false;
   }
-
-  await api.createFile(payload)
-  emit('uploaded')
-  emit('close')
 }
+
+// reset internal state
+function resetState() {
+  file.value = null;
+  tags.value = "";
+  isDragging.value = false;
+  isUploading.value = false;
+  if (fileInput.value) fileInput.value.value = "";
+}
+
+// close (reset + notify parent)
+function closeModal() {
+  resetState();
+  emit("close");
+}
+
+// close on ESC
+function onKeyDown(e) {
+  if (e.key === "Escape") closeModal();
+}
+
+onMounted(() => {
+  document.addEventListener("keydown", onKeyDown);
+  // focus drop area for keyboard users
+  setTimeout(() => fileDropRef.value?.focus(), 0);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("keydown", onKeyDown);
+});
 </script>
 
 <style scoped>
-/* ===== Overlay ===== */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-  z-index: 999;
-}
-
-/* ===== Modal ===== */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 420px;
-  max-width: 95%;
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px 24px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  animation: fadeIn 0.25s ease;
-}
-
-.modal h3 {
-  margin: 0 0 14px;
-  font-size: 18px;
-  font-weight: 600;
-  color: #222;
-}
-
-/* ===== File Drop ===== */
-.file-drop {
-  border: 2px dashed #d1d5db;
-  border-radius: 10px;
-  padding: 30px 20px;
-  text-align: center;
-  cursor: pointer;
-  margin-bottom: 14px;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.file-drop.dragging {
-  border-color: #2563eb;
-  background: #f3f6ff;
-}
-
-.file-drop .placeholder {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.file-drop .placeholder .icon {
-  font-size: 28px;
-  display: block;
-  margin-bottom: 6px;
-}
-
-.file-drop .placeholder .browse {
-  color: #2563eb;
-  font-weight: 500;
-}
-
-.file-drop .file-info {
-  font-size: 14px;
-  color: #111827;
-}
-
-.file-drop .file-info .icon {
-  font-size: 22px;
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-/* Hidden input */
-.hidden-input {
-  display: none;
-}
-
-/* ===== Inputs ===== */
-.input {
-  width: 100%;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.input:focus {
-  border-color: #2563eb;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
-}
-
-/* ===== Actions ===== */
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.button.primary {
-  background: #2563eb;
-  color: #fff;
-}
-
-.button.primary:hover {
-  background: #1d4ed8;
-}
-
-.button.secondary {
-  background: #f3f4f6;
-  color: #374151;
-}
-
-.button.secondary:hover {
-  background: #e5e7eb;
-}
-
-/* ===== Animation ===== */
+/* tiny keyframe used for the modal open animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -257,5 +226,8 @@ async function upload() {
     opacity: 1;
     transform: translate(-50%, -50%);
   }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.22s ease forwards;
 }
 </style>

@@ -11,6 +11,7 @@ import DeleteModal from "../components/dms/DeleteModal.vue";
 import RenameModal from "../components/dms/RenameModal.vue";
 import DownloadModal from "../components/dms/DownloadModal.vue";
 import CheckoutModal from "../components/dms/CheckoutModal.vue";
+import Navbar from "../components/common/Header.vue";
 
 const files = ref([]);
 const search = ref("");
@@ -267,15 +268,14 @@ async function createFolder() {
 </script>
 
 <template>
-  <div
-    class="all-wrapper max-w-[90vw] mx-auto pb-5 mt-9 border border-gray-300 rounded-lg shadow-lg mb-10"
-  >
-    <h1
-      class="text-white bg-green-500 font-semibold py-4 text-lg text-center rounded-t-lg"
-    >
+  <Navbar />
+  <div class="max-w-[90vw] mx-auto pb-6 mt-24 rounded-lg shadow-lg mb-10 border border-gray-200">
+    <h1 class="text-center text-lg font-semibold text-white bg-green-500 py-4 rounded-t-lg">
       Document Management System
     </h1>
-    <div class="max-w-[85vw] mx-auto">
+
+    <div class="max-w-[85vw] mx-auto px-4 py-6">
+      <!-- Toolbar -->
       <FileToolbar
         :searchModel="search"
         @search="onSearch"
@@ -283,58 +283,45 @@ async function createFolder() {
         @upload="openUpload"
       />
 
-      <div
-        class="px-3 py-2 rounded mb-4 text-green-700 font-semibold text-sm"
-      >
-        <span class="cursor-pointer" v-for="(b, i) in breadcrumbs" :key="b.id">
-          <span @click="goToCrumb(b)">{{ b.name }}</span>
-          <span v-if="i < breadcrumbs.length - 1"> / </span>
-        </span>
+      <!-- Breadcrumbs -->
+      <div class="mt-4 mb-4 px-3 py-2 rounded text-sm font-semibold text-emerald-700">
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <template v-for="(b, i) in breadcrumbs" :key="b.id">
+            <button @click="goToCrumb(b)" class="text-emerald-800 hover:underline text-sm">
+              {{ b.name }}
+            </button>
+            <span v-if="i < breadcrumbs.length - 1" class="text-gray-400">/</span>
+          </template>
+        </div>
       </div>
 
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex gap-3 items-center">
-          <label class="text-sm font-bold text-green-800">View :</label>
+      <!-- Controls -->
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 mb-4">
+        <div class="flex items-center gap-3">
+          <label class="text-sm font-bold text-emerald-800 mr-2">View :</label>
+
           <div class="flex border border-gray-300 rounded-lg overflow-hidden">
             <button
               @click="view = 'list'"
-              :class="
-                view === 'list'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
-              "
-              class="px-3 py-2 flex items-center gap-2 font-medium text-sm transition"
+              :class="view === 'list' ? 'bg-emerald-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+              class="px-3 py-2 flex items-center gap-2 font-medium text-sm transition focus:outline-none"
             >
-              <img
-                src="../assets/icons/listview.svg"
-                alt="List View"
-                class="w-4 h-4"
-              />
+              <img src="../assets/icons/listview.svg" alt="List View" class="w-4 h-4" />
             </button>
 
             <button
               @click="view = 'grid'"
-              :class="
-                view === 'grid'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-100'
-              "
-              class="px-3 py-2 flex items-center gap-2 font-medium text-sm transition"
+              :class="view === 'grid' ? 'bg-emerald-500 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'"
+              class="px-3 py-2 flex items-center gap-2 font-medium text-sm transition focus:outline-none"
             >
-              <img
-                src="../assets/icons/gridView.svg"
-                alt="List View"
-                class="w-4 h-4"
-              />
+              <img src="../assets/icons/gridView.svg" alt="Grid View" class="w-4 h-4" />
             </button>
           </div>
         </div>
 
         <div class="flex items-center gap-3">
-          <label class="text-sm font-bold text-green-800" style="margin-left: 12px"
-            >Filter by Type:</label
-          >
-          <select v-model="filters.type" class="border border-green-300 px-2 py-1 rounded-t-lg cursor-pointer" style="width: 140px">
+          <label class="text-sm font-bold text-emerald-800">Filter by Type:</label>
+          <select v-model="filters.type" class="border border-emerald-300 px-2 py-1 rounded-lg cursor-pointer w-36">
             <option value="">All</option>
             <option value="folder">Folders</option>
             <option value="file">Files</option>
@@ -342,33 +329,45 @@ async function createFolder() {
         </div>
       </div>
 
-      <FileView
-        class="file_view"
-        :files="pagedFiles"
-        :viewMode="view"
-        :sort="sort"
-        @open-folder="openFolder"
-        @select="selectItem"
-        @checkout="checkout"
-        @checkin="checkin"
-        @delete="remove"
-        @rename="rename"
-        @download="download"
-        @sort-change="changeSort"
-      />
+      <!-- File view -->
+      <div :class="['file_view', 'min-h-[400px]']">
+        <FileView
+          class="w-full"
+          :files="pagedFiles"
+          :viewMode="view"
+          :sort="sort"
+          @open-folder="openFolder"
+          @select="selectItem"
+          @checkout="checkout"
+          @checkin="checkin"
+          @delete="remove"
+          @rename="rename"
+          @download="download"
+          @sort-change="changeSort"
+        />
+      </div>
 
-      <div
-        style="margin-top: 10px; display: flex; gap: 8px; align-items: center"
-      >
-        <div class="font-semibold text-sm text-green-700">Showing <span class="text-green-900 text-base font-bold">{{ filteredFiles.length }}</span> items</div>
-        <div style="flex: 1"></div>
-        <div>
-          <button class="text-sm font-medium text-green-700 bg-green-100 px-3 py-1 rounded-lg" :disabled="page === 1" @click="page--">
+      <!-- Footer / Pagination -->
+      <div class="mt-3 flex flex-col md:flex-row items-center gap-3">
+        <div class="text-sm font-semibold text-emerald-700">
+          Showing <span class="text-emerald-900 text-base font-bold">{{ filteredFiles.length }}</span> items
+        </div>
+
+        <div class="flex-1"></div>
+
+        <div class="flex items-center gap-2">
+          <button
+            class="text-sm font-medium bg-emerald-100 px-3 py-1 rounded-lg text-emerald-700 disabled:opacity-50"
+            :disabled="page === 1"
+            @click="page--"
+          >
             Prev
           </button>
-          <span class="mx-3 font-semibold text-green-800 text-sm ">Page {{ page }}</span>
+
+          <span class="mx-3 font-semibold text-emerald-800 text-sm">Page {{ page }}</span>
+
           <button
-            class="text-sm font-medium text-green-700 bg-green-100 px-3 py-1 rounded-lg"
+            class="text-sm font-medium bg-emerald-100 px-3 py-1 rounded-lg text-emerald-700 disabled:opacity-50"
             :disabled="page * pageSize >= filteredFiles.length"
             @click="page++"
           >
@@ -377,17 +376,15 @@ async function createFolder() {
         </div>
       </div>
 
-      <!-- DetailsPane Modal -->
-      <div v-if="selectedItem">
-        <div class="overlay" @click="selectedItem = null"></div>
-        <div class="modal">
-          <DetailsPane
-            :item="selectedItem"
-            @add-note="addNote"
-            @view-history="openHistory"
-          />
+      <!-- Details Pane Modal -->
+      <transition name="fade">
+        <div v-if="selectedItem">
+          <div class="fixed inset-0 bg-black/45 backdrop-blur-sm z-[60]" @click="selectedItem = null"></div>
+          <div class="fixed left-1/2 top-1/2 z-[70] -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl p-5 shadow-2xl">
+            <DetailsPane :item="selectedItem" @add-note="addNote" @view-history="openHistory" />
+          </div>
         </div>
-      </div>
+      </transition>
 
       <!-- History Modal -->
       <VersionHistoryModal
@@ -398,25 +395,26 @@ async function createFolder() {
       />
 
       <!-- Check-in Modal -->
-      <div v-if="checkinItem">
-        <div class="overlay" @click="checkinItem = null"></div>
-        <div class="modal">
-          <CheckInModal
-            :item="checkinItem"
-            @close="checkinItem = null"
-            @submit="performCheckIn"
-          />
+      <transition name="fade">
+        <div v-if="checkinItem">
+          <div class="fixed inset-0 bg-black/45 backdrop-blur-sm z-[60]" @click="checkinItem = null"></div>
+          <div class="fixed left-1/2 top-1/2 z-[70] -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl p-5 shadow-2xl">
+            <CheckInModal :item="checkinItem" @close="checkinItem = null" @submit="performCheckIn" />
+          </div>
         </div>
-      </div>
+      </transition>
 
       <!-- Upload Modal -->
-      <UploadModal
-        v-if="showUpload"
-        :parentId="currentFolderId"
-        @close="showUpload = false"
-        @uploaded="refresh"
-      />
+      <transition name="fade">
+        <div v-if="showUpload">
+          <div class="fixed inset-0 bg-black/45 backdrop-blur-sm z-[60]" @click="showUpload = false"></div>
+          <div >
+            <UploadModal :parentId="currentFolderId" @close="showUpload = false" @uploaded="refresh" />
+          </div>
+        </div>
+      </transition>
 
+      <!-- Delete Modal -->
       <DeleteModal
         v-if="deleteItem"
         :item="deleteItem"
@@ -424,6 +422,7 @@ async function createFolder() {
         @confirm="confirmDelete"
       />
 
+      <!-- Rename Modal -->
       <RenameModal
         v-if="renameItem"
         :item="renameItem"
@@ -431,6 +430,7 @@ async function createFolder() {
         @confirm="confirmRename"
       />
 
+      <!-- Download Modal -->
       <DownloadModal
         v-if="downloadItem"
         :item="downloadItem"
@@ -438,6 +438,7 @@ async function createFolder() {
         @confirm="confirmDownload"
       />
 
+      <!-- Checkout Modal -->
       <CheckoutModal
         v-if="checkoutItem"
         :item="checkoutItem"
@@ -447,207 +448,23 @@ async function createFolder() {
       />
 
       <!-- New Folder Modal -->
-      <div
-        v-if="showNewFolder"
-        class="overlay"
-        @click="showNewFolder = false"
-      ></div>
-      <div v-if="showNewFolder" class="modal clickFolderModal">
-        <h3>Create Folder</h3>
-        <input
-          class="input CreateFolder"
-          v-model="newFolderName"
-          placeholder="Folder name"
-        />
-        <div style="margin-top: 8px" class="actions">
-          <button class="button" @click="showNewFolder = false">Cancel</button>
-          <button class="button primary" @click="createFolder">Create</button>
+      <transition name="fade">
+        <div v-if="showNewFolder">
+          <div class="fixed inset-0 bg-black/45 backdrop-blur-sm z-[60]" @click="showNewFolder = false"></div>
+          <div class="fixed left-1/2 top-1/2 z-[70] -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white rounded-xl p-5 shadow-2xl">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3">Create Folder</h3>
+            <input
+              class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400"
+              v-model="newFolderName"
+              placeholder="Folder name"
+            />
+            <div class="mt-4 flex justify-end gap-2">
+              <button class="px-3 py-1 rounded-md bg-gray-100 text-sm" @click="showNewFolder = false">Cancel</button>
+              <button class="px-3 py-1 rounded-md bg-emerald-600 text-white text-sm" @click="createFolder">Create</button>
+            </div>
+          </div>
         </div>
-      </div>
+      </transition>
     </div>
   </div>
 </template>
-
-<style>
-.title {
-  text-align: center;
-  margin: 20px 0;
-}
-.all-wrapper {
-  width: 100vw;
-}
-
-.inside-wrapper {
-  max-width: 80vw;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.file_view {
-  min-height: 400px;
-}
-
-/* ===== Table ===== */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 14px;
-  font-size: 14px;
-}
-
-.table thead {
-  background: #f3f4f6;
-}
-
-.table th,
-.table td {
-  border: 1px solid #e5e7eb;
-  padding: 8px 10px;
-  text-align: left;
-}
-
-.table th.sortable {
-  cursor: pointer;
-  user-select: none;
-}
-
-.table th.sortable:hover {
-  background: #e5e7eb;
-}
-
-/* ===== Grid View ===== */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
-}
-
-/* ===== Card ===== */
-.card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-}
-
-/* ===== Buttons ===== */
-.button {
-  background: #f3f4f6;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.button:hover:not(:disabled) {
-  background: #e5e7eb;
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.button.primary {
-  background: #2563eb;
-  color: #fff;
-}
-
-.button.primary:hover {
-  background: #1d4ed8;
-}
-
-.button.danger {
-  background: #dc2626;
-  color: #fff;
-}
-
-.button.danger:hover {
-  background: #b91c1c;
-}
-
-/* ===== Inputs & Selects ===== */
-.input {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.CreateFolder {
-  width: 100%;
-  margin-bottom: 12px;
-}
-
-.input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
-}
-
-/* ===== Overlay & Modal ===== */
-.overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-  z-index: 999;
-}
-
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  max-width: 95%;
-  background: #fff;
-  border-radius: 12px;
-  padding: 18px 22px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  animation: fadeIn 0.25s ease;
-}
-
-.clickFolderModal {
-  width: 320px;
-}
-
-.modal h3 {
-  margin: 0 0 12px;
-  font-size: 17px;
-  font-weight: 600;
-  color: #222;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-/* ===== Animation ===== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -46%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%);
-  }
-}
-</style>
